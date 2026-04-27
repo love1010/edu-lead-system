@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>招生管理后台</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f0f4f9; color: #1a2332; min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font: inherit; border: none; outline: none; }
+    input, textarea { font: inherit; outline: none; }
+
+    /* Layout */
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 220px; background: #1a2332; color: #bcc4d4;
+      padding: 24px 0; flex-shrink: 0; display: flex; flex-direction: column;
+    }
+    .sidebar h1 { color: #fff; font-size: 1rem; padding: 0 20px 24px; border-bottom: 1px solid #2a3448; margin-bottom: 8px; letter-spacing: 0.04em; }
+    .sidebar nav { flex: 1; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 20px; font-size: 0.92rem; color: #9aa8be;
+      transition: all 0.15s; cursor: pointer; border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: #242e42; color: #d0d8e6; }
+    .nav-item.active { background: #242e42; color: #fff; border-left-color: #4f8cff; }
+    .nav-item .badge {
+      margin-left: auto; background: #e5493a; color: #fff;
+      font-size: 0.72rem; padding: 2px 8px; border-radius: 999px;
+    }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid #2a3448; font-size: 0.82rem; color: #6a7a94; }
+
+    .main { flex: 1; overflow-y: auto; padding: 28px 32px; max-width: calc(100vw - 220px); }
+    .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .main-header h2 { font-size: 1.5rem; font-weight: 700; }
+    .admin-info { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; }
+    .admin-info button {
+      background: none; color: #6a7a94; font-size: 0.85rem; padding: 4px 10px; border-radius: 6px; border: 1px solid #d0d8e2;
+    }
+    .admin-info button:hover { background: #e8ecf2; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* Login */
+    .login-page {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; background: #f0f4f9;
+    }
+    .login-card {
+      background: #fff; padding: 40px; border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08); width: 380px;
+    }
+    .login-card h1 { font-size: 1.4rem; margin-bottom: 24px; text-align: center; }
+    .login-card label { display: block; margin-bottom: 16px; }
+    .login-card label span { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: #52607a; }
+    .login-card input {
+      width: 100%; padding: 12px 16px; border: 1px solid #d8e0ea;
+      border-radius: 12px; font-size: 0.95rem;
+    }
+    .login-card input:focus { border-color: #4f8cff; box-shadow: 0 0 0 3px rgba(79,140,255,0.12); }
+    .login-error { color: #e5493a; font-size: 0.85rem; margin-bottom: 12px; display: none; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 0.92rem;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: #1a5cd8; color: #fff; width: 100%; }
+    .btn-primary:hover { background: #154bb3; }
+    .btn-sm { padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; }
+    .btn-outline { background: #fff; border: 1px solid #d8e0ea; color: #1a2332; }
+    .btn-outline:hover { background: #f4f7fb; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-success:hover { background: #12853c; }
+    .btn-warning { background: #eab308; color: #1a2332; }
+    .btn-warning:hover { background: #d4a207; }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: #fff; border-radius: 16px; padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .stat-card .num { font-size: 2rem; font-weight: 800; margin-bottom: 4px; }
+    .stat-card .label { font-size: 0.85rem; color: #6a7a94; }
+    .stat-card.blue .num { color: #1a5cd8; }
+    .stat-card.green .num { color: #16a34a; }
+    .stat-card.orange .num { color: #ea8c20; }
+    .stat-card.red .num { color: #e5493a; }
+
+    /* Tables */
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 24px; }
+    .card-header { padding: 16px 20px; border-bottom: 1px solid #f0f4f9; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { text-align: left; padding: 12px 16px; background: #f8fafc; color: #6a7a94; font-weight: 600; font-size: 0.82rem; white-space: nowrap; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f0f4f9; }
+    tr:last-child td { border-bottom: none; }
+    .status-tag {
+      display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+    }
+    .status-new { background: #fef3c7; color: #92400e; }
+    .status-contacted { background: #dbeafe; color: #1e40af; }
+    .status-closed { background: #e8ecef; color: #4b5563; }
+    .text-muted { color: #6a7a94; }
+    .text-truncate { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pagination { display: flex; align-items: center; gap: 8px; padding: 12px 16px; justify-content: center; }
+    .pagination button { padding: 6px 14px; border-radius: 8px; border: 1px solid #d8e0ea; background: #fff; }
+    .pagination button:disabled { opacity: 0.4; }
+    .pagination span { font-size: 0.85rem; color: #6a7a94; }
+
+    /* Conversations */
+    .conv-list { list-style: none; }
+    .conv-item {
+      display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+      border-bottom: 1px solid #f0f4f9; cursor: pointer; transition: background 0.12s;
+    }
+    .conv-item:hover, .conv-item.active { background: #f4f8ff; }
+    .conv-item .avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: #e0e8f4;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1a5cd8; flex-shrink: 0;
+    }
+    .conv-item .info { flex: 1; min-width: 0; }
+    .conv-item .info .name { font-weight: 600; font-size: 0.92rem; }
+    .conv-item .info .preview { font-size: 0.82rem; color: #6a7a94; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .conv-item .info .time { font-size: 0.75rem; color: #9aa8be; }
+    .conv-item .unread-badge {
+      background: #e5493a; color: #fff; font-size: 0.72rem;
+      min-width: 20px; height: 20px; border-radius: 999px;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+    }
+
+    /* Chat */
+    .chat-panel { display: flex; flex-direction: column; height: 500px; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .msg { max-width: 80%; padding: 10px 16px; border-radius: 16px; font-size: 0.88rem; line-height: 1.6; }
+    .msg-incoming { background: #f0f4f9; align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg-outgoing { background: #1a5cd8; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg .meta { font-size: 0.72rem; opacity: 0.6; margin-top: 4px; }
+    .chat-input { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid #f0f4f9; }
+    .chat-input textarea {
+      flex: 1; padding: 10px 14px; border: 1px solid #d8e0ea; border-radius: 12px;
+      resize: none; min-height: 44px; max-height: 100px;
+    }
+    .chat-input button { padding: 10px 20px; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #9aa8be; }
+    .empty-state p { font-size: 0.95rem; }
+
+    .toast {
+      position: fixed; top: 20px; right: 20px; background: #1a2332; color: #fff;
+      padding: 12px 20px; border-radius: 12px; font-size: 0.88rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 999;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 720px) {
+      .sidebar { width: 60px; overflow: hidden; }
+      .sidebar h1 { font-size: 0; padding: 20px 0; }
+      .sidebar h1::after { content: "📋"; font-size: 1.2rem; display: block; text-align: center; }
+      .nav-item span:not(.badge) { display: none; }
+      .nav-item { justify-content: center; padding: 14px; }
+      .nav-item .badge { position: absolute; top: 4px; right: 4px; font-size: 0.65rem; min-width: 16px; height: 16px; padding: 0 4px; }
+      .nav-item { position: relative; }
+      .main { padding: 16px; max-width: 100vw; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======== LOGIN PAGE ======== -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <h1>招生管理后台</h1>
+    <div class="login-error" id="loginError"></div>
+    <label>
+      <span>用户名</span>
+      <input type="text" id="loginUser" placeholder="请输入用户名" autocomplete="username">
+    </label>
+    <label>
+      <span>密码</span>
+      <input type="password" id="loginPass" placeholder="请输入密码" autocomplete="current-password">
+    </label>
+    <button class="btn btn-primary" id="loginBtn">登录</button>
+    <p style="text-align:center;margin-top:16px;font-size:0.82rem;color:#9aa8be;">默认账号: admin / admin123</p>
+  </div>
+</div>
+
+<!-- ======== APP ======== -->
+<div class="app" id="app" style="display:none;">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h1>招生管理后台</h1>
+    <nav>
+      <div class="nav-item active" data-page="dashboard">📊 <span>数据概览</span></div>
+      <div class="nav-item" data-page="visits">👁️ <span>访问记录</span></div>
+      <div class="nav-item" data-page="leads">📋 <span>报名线索</span></div>
+      <div class="nav-item" data-page="messages">
+        💬 <span>消息对话</span>
+        <span class="badge" id="unreadBadge" style="display:none;">0</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="font-size:0.82rem;color:#6a7a94;">admin</div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="main-header">
+      <h2 id="pageTitle">数据概览</h2>
+      <div class="admin-info">
+        <span id="adminName">admin</span>
+        <button id="logoutBtn">退出登录</button>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="page active" id="pageDashboard">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card blue"><div class="num" id="statTotalVisits">-</div><div class="label">总访问次数</div></div>
+        <div class="stat-card green"><div class="num" id="statTodayVisits">-</div><div class="label">今日访问</div></div>
+        <div class="stat-card orange"><div class="num" id="statTotalLeads">-</div><div class="label">报名线索</div></div>
+        <div class="stat-card red"><div class="num" id="statUnread">-</div><div class="label">未读消息</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">最近访问</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>IP</th><th>来源</th><th>页面</th><th>时间</th></tr></thead>
+            <tbody id="recentVisitsBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">最新报名线索</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>姓名</th><th>电话</th><th>层次</th><th>专业</th><th>状态</th><th>时间</th></tr></thead>
+            <tbody id="recentLeadsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visits -->
+    <div class="page" id="pageVisits">
+      <div class="card">
+        <div class="card-header">访问记录</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>IP</th><th>来源</th><th>页面</th><th>User-Agent</th><th>时间</th></tr></thead>
+            <tbody id="visitsBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="visitsPagination"></div>
+      </div>
+    </div>
+
+    <!-- Leads -->
+    <div class="page" id="pageLeads">
+      <div class="card">
+        <div class="card-header">报名线索</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>姓名</th><th>电话</th><th>层次</th><th>专业</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+            <tbody id="leadsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="page" id="pageMessages">
+      <div style="display:grid;grid-template-columns:320px 1fr;gap:16px;">
+        <div class="card">
+          <div class="card-header">对话列表</div>
+          <ul class="conv-list" id="convList"></ul>
+        </div>
+        <div class="card">
+          <div class="card-header" id="chatHeader">选择一个对话</div>
+          <div class="chat-panel" id="chatPanel">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input" id="chatInputArea" style="display:none;">
+              <textarea id="replyInput" placeholder="输入回复..." rows="2"></textarea>
+              <button class="btn btn-primary" id="replyBtn">发送</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======== STATE ========
+let token = localStorage.getItem('token') || '';
+let currentPage = 'dashboard';
+let currentPhone = '';
+let statsInterval = null;
+let msgPollInterval = null;
+
+// ======== API HELPER ========
+async function api(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(path, { ...opts, headers });
+  if (res.status === 401 && token) { logout(); return null; }
+  return res.json();
+}
+
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ======== AUTH ========
+function login() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+
+  fetch('/api/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  }).then(r => r.json()).then(data => {
+    if (data.error) {
+      errEl.textContent = data.error;
+      errEl.style.display = 'block';
+      return;
+    }
+    token = data.token;
+    localStorage.setItem('token', token);
+    document.getElementById('adminName').textContent = data.username;
+    showApp();
+  }).catch(() => {
+    errEl.textContent = '网络错误，请检查服务是否启动';
+    errEl.style.display = 'block';
+  });
+}
+
+function logout() {
+  token = '';
+  localStorage.removeItem('token');
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  if (statsInterval) clearInterval(statsInterval);
+  if (msgPollInterval) clearInterval(msgPollInterval);
+}
+
+function showApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  loadDashboard();
+  loadVisits(1);
+  loadLeads();
+  loadConversations();
+  statsInterval = setInterval(loadDashboard, 15000);
+  msgPollInterval = setInterval(loadConversations, 10000);
+}
+
+// Check if already logged in
+if (token) {
+  api('/api/admin/stats').then(data => {
+    if (data && data.totalVisits !== undefined) showApp();
+  });
+}
+
+// ======== NAVIGATION ========
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const page = el.dataset.page;
+    currentPage = page;
+    document.getElementById('page' + page.charAt(0).toUpperCase() + page.slice(1)).classList.add('active');
+
+    const titles = { dashboard: '数据概览', visits: '访问记录', leads: '报名线索', messages: '消息对话' };
+    document.getElementById('pageTitle').textContent = titles[page] || page;
+
+    if (page === 'dashboard') loadDashboard();
+    if (page === 'visits') loadVisits(1);
+    if (page === 'leads') loadLeads();
+    if (page === 'messages') loadConversations();
+  });
+});
+
+// ======== DASHBOARD ========
+async function loadDashboard() {
+  const data = await api('/api/admin/stats');
+  if (!data) return;
+  document.getElementById('statTotalVisits').textContent = data.totalVisits;
+  document.getElementById('statTodayVisits').textContent = data.todayVisits;
+  document.getElementById('statTotalLeads').textContent = data.totalLeads;
+  document.getElementById('statUnread').textContent = data.unreadMessages;
+
+  // Update unread badge
+  const badge = document.getElementById('unreadBadge');
+  if (data.unreadMessages > 0) {
+    badge.textContent = data.unreadMessages;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  // Recent visits (last 5)
+  const visitsRes = await api('/api/admin/visits?limit=5');
+  if (visitsRes && visitsRes.visits) {
+    document.getElementById('recentVisitsBody').innerHTML = visitsRes.visits.map(v => `
+      <tr>
+        <td class="text-muted">${escapeHtml(v.ip || '-')}</td>
+        <td class="text-muted text-truncate">${escapeHtml(v.referrer || '直接访问')}</td>
+        <td class="text-muted">${escapeHtml(v.page_url || '-')}</td>
+        <td class="text-muted" style="white-space:nowrap;">${v.created_at || '-'}</td>
+      </tr>
+    `).join('');
+  }
+
+  // Recent leads
+  const leadsRes = await api('/api/admin/leads');
+  if (leadsRes && leadsRes.leads) {
+    document.getElementById('recentLeadsBody').innerHTML = leadsRes.leads.slice(0, 5).map(l => `
+      <tr>
+        <td>${escapeHtml(l.name)}</td>
+        <td>${escapeHtml(l.phone)}</td>
+        <td class="text-muted">${escapeHtml(l.level || '-')}</td>
+        <td class="text-muted">${escapeHtml(l.major || '-')}</td>
+        <td><span class="status-tag status-${l.status}">${l.status === 'new' ? '新线索' : l.status === 'contacted' ? '已联系' : '已关闭'}</span></td>
+        <td class="text-muted" style="white-space:nowrap;">${l.created_at || '-'}</td>
+      </tr>
+    `).join('');
+  }
+}
+
+// ======== VISITS ========
+let visitPage = 1;
+async function loadVisits(page) {
+  visitPage = page;
+  const data = await api(`/api/admin/visits?page=${page}&limit=50`);
+  if (!data) return;
+
+  document.getElementById('visitsBody').innerHTML = data.visits.map(v => `
+    <tr>
+      <td class="text-muted">${v.id}</td>
+      <td class="text-muted">${escapeHtml(v.ip || '-')}</td>
+      <td class="text-muted text-truncate">${escapeHtml(v.referrer || '直接访问')}</td>
+      <td class="text-muted">${escapeHtml(v.page_url || '-')}</td>
+      <td class="text-muted text-truncate" style="max-width:200px;">${escapeHtml(v.user_agent ? v.user_agent.slice(0, 80) : '-')}</td>
+      <td class="text-muted" style="white-space:nowrap;">${v.created_at || '-'}</td>
+    </tr>
+  `).join('');
+
+  const pg = document.getElementById('visitsPagination');
+  pg.innerHTML = `
+    <button ${page <= 1 ? 'disabled' : ''} onclick="loadVisits(${page - 1})">上一页</button>
+    <span>第 ${page} / ${data.totalPages || 1} 页 (共 ${data.total} 条)</span>
+    <button ${page >= (data.totalPages || 1) ? 'disabled' : ''} onclick="loadVisits(${page + 1})">下一页</button>
+  `;
+}
+
+// ======== LEADS ========
+async function loadLeads() {
+  const data = await api('/api/admin/leads');
+  if (!data) return;
+
+  document.getElementById('leadsBody').innerHTML = data.leads.map(l => `
+    <tr>
+      <td class="text-muted">${l.id}</td>
+      <td>${escapeHtml(l.name)}</td>
+      <td>${escapeHtml(l.phone)}</td>
+      <td class="text-muted">${escapeHtml(l.level || '-')}</td>
+      <td class="text-muted">${escapeHtml(l.major || '-')}</td>
+      <td>
+        <select class="status-select" data-id="${l.id}" style="padding:4px 8px;border-radius:8px;border:1px solid #d8e0ea;font-size:0.82rem;">
+          <option value="new" ${l.status === 'new' ? 'selected' : ''}>新线索</option>
+          <option value="contacted" ${l.status === 'contacted' ? 'selected' : ''}>已联系</option>
+          <option value="closed" ${l.status === 'closed' ? 'selected' : ''}>已关闭</option>
+        </select>
+      </td>
+      <td class="text-muted" style="white-space:nowrap;">${l.created_at || '-'}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="openChat('${escapeHtml(l.phone)}','${escapeHtml(l.name)}')">发消息</button></td>
+    </tr>
+  `).join('') || '<tr><td colspan="8" class="empty-state"><p>暂无报名线索</p></td></tr>';
+
+  // Bind status change
+  document.querySelectorAll('.status-select').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      await api(`/api/admin/leads/${sel.dataset.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: sel.value })
+      });
+      toast('状态已更新');
+    });
+  });
+}
+
+// ======== MESSAGES ========
+async function loadConversations() {
+  const data = await api('/api/admin/conversations');
+  if (!data) return;
+
+  const list = document.getElementById('convList');
+  const hasUnread = data.conversations.some(c => c.unread > 0);
+
+  list.innerHTML = data.conversations.map(c => `
+    <li class="conv-item ${c.phone === currentPhone ? 'active' : ''}" onclick="openChat('${escapeHtml(c.phone)}','${escapeHtml(c.name)}')">
+      <div class="avatar">${escapeHtml((c.name || '?').charAt(0))}</div>
+      <div class="info">
+        <div class="name">${escapeHtml(c.name)} <span class="time">${c.phone}</span></div>
+        <div class="preview">${escapeHtml(c.last_content || '')}</div>
+        <div class="time">${c.last_message_at || ''}</div>
+      </div>
+      ${c.unread > 0 ? `<div class="unread-badge">${c.unread}</div>` : ''}
+    </li>
+  `).join('') || '<li style="padding:40px;text-align:center;color:#9aa8be;">暂无消息</li>';
+
+  // Update badge
+  const badge = document.getElementById('unreadBadge');
+  const totalUnread = data.conversations.reduce((sum, c) => sum + c.unread, 0);
+  if (totalUnread > 0) {
+    badge.textContent = totalUnread;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  // If current conversation is open, refresh messages
+  if (currentPhone) {
+    loadMessages(currentPhone);
+  }
+}
+
+async function openChat(phone, name) {
+  currentPhone = phone;
+  document.getElementById('chatHeader').textContent = `对话 - ${name} (${phone})`;
+  document.getElementById('chatInputArea').style.display = 'flex';
+  document.getElementById('chatMessages').innerHTML = '<div style="text-align:center;color:#9aa8be;padding:20px;">加载中...</div>';
+  document.getElementById('replyInput').value = '';
+
+  await loadMessages(phone);
+  loadConversations();
+}
+
+async function loadMessages(phone) {
+  const data = await api(`/api/admin/messages?phone=${encodeURIComponent(phone)}`);
+  if (!data) return;
+
+  const container = document.getElementById('chatMessages');
+  container.innerHTML = data.messages.map(m => `
+    <div class="msg ${m.is_admin ? 'msg-outgoing' : 'msg-incoming'}">
+      <div>${escapeHtml(m.content)}</div>
+      <div class="meta">${m.is_admin ? '招生老师' : escapeHtml(m.name || '访客')} · ${m.created_at || ''}</div>
+    </div>
+  `).join('') || '<div style="text-align:center;color:#9aa8be;padding:20px;">暂无消息</div>';
+
+  container.scrollTop = container.scrollHeight;
+
+  // Mark as read
+  await api('/api/admin/messages/read', {
+    method: 'PUT',
+    body: JSON.stringify({ phone })
+  });
+}
+
+document.getElementById('replyBtn').addEventListener('click', async () => {
+  const input = document.getElementById('replyInput');
+  const content = input.value.trim();
+  if (!content || !currentPhone) return;
+
+  await api('/api/admin/messages/reply', {
+    method: 'POST',
+    body: JSON.stringify({ phone: currentPhone, content })
+  });
+
+  input.value = '';
+  loadMessages(currentPhone);
+  loadConversations();
+});
+
+document.getElementById('replyInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    document.getElementById('replyBtn').click();
+  }
+});
+
+// ======== EVENTS ========
+document.getElementById('loginBtn').addEventListener('click', login);
+document.getElementById('loginPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+document.getElementById('loginUser').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+document.getElementById('logoutBtn').addEventListener('click', logout);
+</script>
+</body>
+</html>

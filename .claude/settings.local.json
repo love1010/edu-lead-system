@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node server.js)",
+      "Bash(curl:*)",
+      "Bash(pkill -f \"node server.js\")",
+      "Bash(taskkill //F //IM node.exe //FI \"WINDOWTITLE eq edu\")",
+      "Bash(git --version)",
+      "Bash(gh --version)",
+      "Bash(git config:*)"
+    ]
+  }
+}
