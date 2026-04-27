@@ -16,7 +16,8 @@
       "WebFetch(domain:docs.zeabur.com)",
       "WebFetch(domain:railway.app)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "WebFetch(domain:edu-lead-system-production.up.railway.app)"
     ]
   }
 }
