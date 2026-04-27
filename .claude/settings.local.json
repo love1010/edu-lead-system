@@ -8,7 +8,15 @@
       "Bash(taskkill //F //IM node.exe //FI \"WINDOWTITLE eq edu\")",
       "Bash(git --version)",
       "Bash(gh --version)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "WebFetch(domain:zeabur.com)",
+      "WebSearch",
+      "WebFetch(domain:docs.zeabur.com)",
+      "WebFetch(domain:railway.app)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }
