@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026年成人高考暑期招生海报</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; background: #1a1a2e; padding: 20px;
+    }
+    .poster {
+      width: 720px; min-height: 1280px;
+      background: linear-gradient(180deg, #ff6b35 0%, #ff8c42 5%, #ffffff 20%, #fff8f0 100%);
+      border-radius: 24px; overflow: hidden; position: relative;
+      box-shadow: 0 20px 80px rgba(255,107,53,0.3);
+    }
+
+    /* Top wave */
+    .top-section {
+      background: linear-gradient(135deg, #e8302a 0%, #ff6b35 60%, #ff8c42 100%);
+      padding: 50px 40px 40px; position: relative; text-align: center;
+    }
+    .top-section::after {
+      content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+      height: 40px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 40'%3E%3Cpath fill='%23ffffff' d='M0 40c240-15 480-30 720-15s480 15 720-5v20H0z'/%3E%3C/svg%3E") bottom/cover no-repeat;
+    }
+
+    .summer-badge {
+      display: inline-block; background: rgba(255,255,255,0.2); color: #fff;
+      padding: 8px 24px; border-radius: 999px; font-size: 1rem;
+      border: 1px solid rgba(255,255,255,0.4); margin-bottom: 20px;
+    }
+    .top-section h1 {
+      color: #fff; font-size: 3rem; font-weight: 900;
+      letter-spacing: 0.04em; line-height: 1.2; margin-bottom: 10px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .top-section .subtitle {
+      color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-top: 8px;
+    }
+
+    /* Mid section */
+    .mid-section { padding: 30px 40px 0; }
+
+    .date-box {
+      background: linear-gradient(135deg, #fff8f0, #fff0e5);
+      border: 2px dashed #ff6b35; border-radius: 20px;
+      padding: 24px; text-align: center; margin-bottom: 28px;
+    }
+    .date-box .em {
+      font-size: 1.8rem; font-weight: 900; color: #e8302a;
+    }
+    .date-box p { color: #8b4513; font-size: 0.95rem; margin-top: 4px; }
+
+    .sell-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;
+    }
+    .sell-item {
+      background: #fff; border-radius: 16px; padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05); text-align: center;
+    }
+    .sell-item .icon { font-size: 2rem; margin-bottom: 8px; }
+    .sell-item h3 { font-size: 1rem; color: #333; margin-bottom: 4px; }
+    .sell-item p { font-size: 0.82rem; color: #888; }
+
+    .school-strip {
+      background: linear-gradient(135deg, #e8302a, #ff6b35); color: #fff;
+      border-radius: 20px; padding: 24px; margin-bottom: 28px; text-align: center;
+    }
+    .school-strip h3 { font-size: 1.1rem; margin-bottom: 12px; }
+    .school-strip .schools {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    }
+    .school-strip .school-tag {
+      background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 999px;
+      font-size: 0.85rem;
+    }
+
+    .contact-box {
+      background: #fff; border-radius: 20px; padding: 28px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 28px; text-align: center;
+    }
+    .contact-box h3 { font-size: 1.2rem; color: #e8302a; margin-bottom: 16px; }
+    .contact-box .phone {
+      display: inline-block; background: linear-gradient(135deg, #e8302a, #ff6b35);
+      color: #fff; padding: 14px 32px; border-radius: 999px;
+      font-size: 1.3rem; font-weight: 900; letter-spacing: 0.04em; margin: 8px 0;
+    }
+    .contact-box .wx { color: #888; font-size: 0.9rem; margin-top: 12px; }
+
+    .qr-row {
+      display: flex; gap: 16px; margin-bottom: 28px;
+    }
+    .qr-card {
+      flex: 1; background: #fff; border-radius: 16px; padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05); text-align: center;
+    }
+    .qr-card .qr-place {
+      width: 100px; height: 100px; margin: 0 auto 12px;
+      background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; color: #aaa;
+    }
+    .qr-card p { font-size: 0.85rem; color: #555; }
+
+    /* Footer */
+    .footer-strip {
+      background: #1a1a2e; color: rgba(255,255,255,0.6); text-align: center;
+      padding: 16px 40px; font-size: 0.8rem;
+    }
+
+    @media (max-width: 760px) {
+      .poster { width: 100%; min-height: auto; }
+      .top-section h1 { font-size: 2.2rem; }
+      .sell-grid { grid-template-columns: 1fr; }
+      .qr-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="poster">
+
+    <!-- Top -->
+    <div class="top-section">
+      <div class="summer-badge">&#9728; 2026 暑期招生</div>
+      <h1>成人高考<br>开始报名啦</h1>
+      <p class="subtitle">国家承认学历 · 学信网可查 · 低门槛提升</p>
+    </div>
+
+    <!-- Mid -->
+    <div class="mid-section">
+
+      <!-- Deadline -->
+      <div class="date-box">
+        <div class="em">&#x1F525; 暑期名额有限 &#x1F525;</div>
+        <p>部分院校专业即将满额，尽早报名优先锁定入学名额</p>
+      </div>
+
+      <!-- Selling points -->
+      <div class="sell-grid">
+        <div class="sell-item">
+          <div class="icon">&#x1F393;</div>
+          <h3>国家承认学历</h3>
+          <p>学信网终身可查，求职晋升考公均适用</p>
+        </div>
+        <div class="sell-item">
+          <div class="icon">&#x1F4DA;</div>
+          <h3>院校多专业全</h3>
+          <p>经管/教育/工程/法学，热门方向全覆盖</p>
+        </div>
+        <div class="sell-item">
+          <div class="icon">&#x1F4DE;</div>
+          <h3>一对一指导</h3>
+          <p>从报名到毕业，专业老师全程陪伴</p>
+        </div>
+        <div class="sell-item">
+          <div class="icon">&#x26A1;</div>
+          <h3>简单易过</h3>
+          <p>考试难度适中，适合在职人员提升</p>
+        </div>
+      </div>
+
+      <!-- School strip -->
+      <div class="school-strip">
+        <h3>&#x1F3EB; 合作院校（部分）</h3>
+        <div class="schools">
+          <span class="school-tag">山东管理学院</span>
+          <span class="school-tag">潍坊学院</span>
+          <span class="school-tag">山东工商学院</span>
+          <span class="school-tag">山东建筑大学</span>
+          <span class="school-tag">山东政法学院</span>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="contact-box">
+        <h3>&#x1F4DE; 报名咨询热线</h3>
+        <div class="phone">19969906634</div>
+        <div class="phone">15105305681</div>
+        <p class="wx">&#x1F4F1; 微信同号，欢迎添加咨询</p>
+      </div>
+
+      <!-- QR + Web -->
+      <div class="qr-row">
+        <div class="qr-card">
+          <div class="qr-place">微信二维码</div>
+          <p>添加招生老师</p>
+        </div>
+        <div class="qr-card">
+          <div class="qr-place">网站直达</div>
+          <p>chengkaobaoming.fun</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-strip">
+      以上信息基于院校招生简章整理 · 具体以最新招生老师答复为准
+    </div>
+  </div>
+</body>
+</html>

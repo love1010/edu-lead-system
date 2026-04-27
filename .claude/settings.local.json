@@ -19,7 +19,8 @@
       "Bash(git commit *)",
       "WebFetch(domain:edu-lead-system-production.up.railway.app)",
       "Bash(python -c ' *)",
-      "Bash(python -m json.tool)"
+      "Bash(python -m json.tool)",
+      "Bash(nslookup *)"
     ]
   }
 }
