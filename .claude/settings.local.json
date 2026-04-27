@@ -20,7 +20,14 @@
       "WebFetch(domain:edu-lead-system-production.up.railway.app)",
       "Bash(python -c ' *)",
       "Bash(python -m json.tool)",
-      "Bash(nslookup *)"
+      "Bash(nslookup *)",
+      "Bash(pip install *)",
+      "Bash(python -m playwright install chromium)",
+      "Bash(python render_poster.py)",
+      "Bash(python create_pptx.py)",
+      "Bash(dig chengkaobaoming.fun CNAME)",
+      "Bash(openssl s_client -servername chengkaobaoming.fun -connect chengkaobaoming.fun:443)",
+      "Bash(openssl x509 *)"
     ]
   }
 }
